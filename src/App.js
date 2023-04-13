@@ -10,10 +10,11 @@ class App extends Component {
 
     this.state = {
       task: {
-        text: '', 
-        id: uniqid()
+        text: "",
+        id: uniqid(),
       },
       tasks: [],
+      taskCount: 0,
     };
   }
 
@@ -28,14 +29,34 @@ class App extends Component {
 
   onSubmitTask = (e) => {
     e.preventDefault();
+    const { task, tasks, taskCount } = this.state;
     this.setState({
-      tasks: this.state.tasks.concat(this.state.task),
+      tasks: tasks.concat({
+        ...task,
+        number: taskCount + 1,
+      }),
       task: {
-        text: '', 
-        id: uniqid()
+        text: "",
+        id: uniqid(),
       },
+      taskCount: taskCount + 1,
     });
   };
+
+  onDeleteTask = (number) => {
+    const { tasks } = this.state;
+    const updatedTasks = tasks.filter((task) => task.number !== number);
+  
+    // Reassign the `number` property of each task
+    for (let i = 0; i < updatedTasks.length; i++) {
+      updatedTasks[i].number = i + 1;
+    }
+  
+    this.setState({
+      tasks: updatedTasks,
+    });
+  };
+  
 
   render() {
     const { task, tasks } = this.state;
@@ -52,7 +73,7 @@ class App extends Component {
           />
           <button type="submit">Add Task</button>
         </form>
-        <Overview tasks={tasks} />
+        <Overview tasks={tasks} onDeleteTask={this.onDeleteTask} />
       </div>
     );
   }
