@@ -1,5 +1,4 @@
 // App.js
-
 import React, { Component } from "react";
 import Overview from "./components/Overview";
 import uniqid from "uniqid";
@@ -15,6 +14,8 @@ class App extends Component {
       },
       tasks: [],
       taskCount: 0,
+      isEditing: false,
+      editTaskId: "",
     };
   }
 
@@ -46,20 +47,37 @@ class App extends Component {
   onDeleteTask = (number) => {
     const { tasks } = this.state;
     const updatedTasks = tasks.filter((task) => task.number !== number);
-  
-    // Reassign the `number` property of each task
-    for (let i = 0; i < updatedTasks.length; i++) {
-      updatedTasks[i].number = i + 1;
-    }
-  
     this.setState({
       tasks: updatedTasks,
     });
   };
-  
 
+  onEditTask = (id) => {
+    this.setState({
+      isEditing: true,
+      editTaskId: id,
+    });
+  };
+  onUpdateTask = (id, newText) => {
+    const { tasks } = this.state;
+    const updatedTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return {
+          ...task,
+          text: newText
+        };
+      } else {
+        return task;
+      }
+    });
+    this.setState({
+      tasks: updatedTasks
+    });
+  };
+  
+  
   render() {
-    const { task, tasks } = this.state;
+    const { task, tasks, isEditing, editTaskId } = this.state;
 
     return (
       <div>
@@ -71,9 +89,16 @@ class App extends Component {
             type="text"
             id="taskInput"
           />
-          <button type="submit">Add Task</button>
+          <button type="submit">{isEditing ? "Update" : "Add Task"}</button>
         </form>
-        <Overview tasks={tasks} onDeleteTask={this.onDeleteTask} />
+        <Overview
+          tasks={tasks}
+          onDeleteTask={this.onDeleteTask}
+          onEditTask={this.onEditTask}
+          onUpdateTask={this.onUpdateTask}
+          isEditing={isEditing}
+          editTaskId={editTaskId}
+        />
       </div>
     );
   }
